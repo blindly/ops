@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Library — ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ops/assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='monospace' fill='%232dd4bf'>$</text></svg>">
+</head>
+<body>
+
+<nav class="top">
+  <a class="brand" href="/ops/">ops</a>
+  <div class="links">
+    <a href="/ops/getting-started.html">Getting Started</a>
+    <a href="/ops/jobs.html">Jobs</a>
+    <a href="/ops/servers.html">Servers</a>
+    <a href="/ops/cli-reference.html">CLI</a>
+    <a href="/ops/library.html">Library</a>
+    <a href="https://github.com/blindly/ops">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>Task Library</h3>
+    <ul>
+      <li><a href="#system" class="active">System</a></li>
+      <li><a href="#packages">Packages</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#files">Files</a></li>
+      <li><a href="#databases">Databases</a></li>
+      <li><a href="#health">Health Checks</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="/ops/jobs.html">Job Files</a></li>
+      <li><a href="/ops/servers.html">Servers</a></li>
+      <li><a href="/ops/cli-reference.html">CLI Reference</a></li>
+    </ul>
+  </aside>
+
+  <div class="content">
+    <h2>Task Library</h2>
+    <p>A collection of reusable snippets for common operations. Drop the <code class="inline">tasks</code> you need into your <code class="inline">jobs.yaml</code>.</p>
+
+    <h3 id="system">System</h3>
+
+    <h4>Check uptime</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: uptime
+    command: uptime</code></pre>
+    </div>
+
+    <h4>Disk usage</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: disk usage
+    command: df -h</code></pre>
+    </div>
+
+    <h4>Free memory</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: free memory
+    command: free -m</code></pre>
+    </div>
+
+    <h3 id="packages">Packages</h3>
+
+    <h4>Update package index</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>defaults:
+  interpreter: bash
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+tasks:
+  - name: update packages
+    command: apt-get update</code></pre>
+    </div>
+
+    <h4>Install a package</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>env:
+  DEBIAN_FRONTEND: noninteractive
+
+tasks:
+  - name: install nginx
+    command: apt-get install -y nginx</code></pre>
+    </div>
+
+    <h3 id="services">Services</h3>
+
+    <h4>Restart a service</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: restart nginx
+    command: systemctl restart nginx</code></pre>
+    </div>
+
+    <h4>Reload a service</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: reload nginx
+    command: systemctl reload nginx</code></pre>
+    </div>
+
+    <h3 id="files">Files</h3>
+
+    <h4>Upload a config file</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: upload nginx config
+    upload: ./configs/nginx.conf
+    dest: /etc/nginx/nginx.conf</code></pre>
+    </div>
+
+    <h4>Create a directory</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: create backups dir
+    command: mkdir -p /backups/$(date +%Y%m%d)</code></pre>
+    </div>
+
+    <h4>Write a file inline</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: write nginx snippet
+    shell: |
+      cat > /etc/nginx/conf.d/default.conf &lt;&lt;'EOF'
+      server {
+          listen 80;
+          server_name {{ .domain }};
+      }
+      EOF
+    vars:
+      domain: example.com</code></pre>
+    </div>
+
+    <h3 id="databases">Databases</h3>
+
+    <h4>PostgreSQL dump</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>env:
+  PGHOST: localhost
+  PGUSER: admin
+
+tasks:
+  - name: dump database
+    shell: |
+      pg_dump app > /backups/$(date +%Y%m%d)/app.sql
+    timeout: 5m</code></pre>
+    </div>
+
+    <h3 id="health">Health Checks</h3>
+
+    <h4>HTTP health check with retries</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>vars:
+  health_url: http://localhost:8080/health
+
+tasks:
+  - name: health check
+    shell: |
+      for i in {1..5}; do
+        curl -f {{ .health_url }} && exit 0
+        sleep 2
+      done
+      exit 1
+    timeout: 30s
+    ignore_errors: true</code></pre>
+
+    <h4>Run in a specific directory</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>snippet</div>
+<pre><code>tasks:
+  - name: list temp files
+    command: ls -la
+    workdir: /tmp</code></pre>
+    </div>
+    </div>
+
+    <div class="callout">
+      <strong>Tip:</strong> Combine snippets with a shared <code class="inline">defaults</code>, <code class="inline">env</code>, or <code class="inline">vars</code> block. See the <a href="/ops/jobs.html">Job Files</a> reference for the full format.
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p><a href="https://github.com/blindly/ops">github.com/blindly/ops</a> · MIT License · Built with Go</p>
+</footer>
+
+</body>
+</html>

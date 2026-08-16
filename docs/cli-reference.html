@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLI Reference — ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ops/assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='monospace' fill='%232dd4bf'>$</text></svg>">
+</head>
+<body>
+
+<nav class="top">
+  <a class="brand" href="/ops/">ops</a>
+  <div class="links">
+    <a href="/ops/getting-started.html">Getting Started</a>
+    <a href="/ops/jobs.html">Jobs</a>
+    <a href="/ops/servers.html">Servers</a>
+    <a href="/ops/cli-reference.html">CLI</a>
+    <a href="/ops/library.html">Library</a>
+    <a href="https://github.com/blindly/ops">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>CLI Reference</h3>
+    <ul>
+      <li><a href="#run" class="active">ops run</a></li>
+      <li><a href="#validate">ops validate</a></li>
+      <li><a href="#list">ops list</a></li>
+      <li><a href="#new">ops new</a></li>
+      <li><a href="#flags">Flags</a></li>
+      <li><a href="#examples">Examples</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="/ops/jobs.html">Job Files</a></li>
+      <li><a href="/ops/servers.html">Servers</a></li>
+    </ul>
+  </aside>
+
+  <div class="content">
+    <h2>CLI Reference</h2>
+
+    <h3 id="run">ops run</h3>
+    <p>Run a job file against remote servers, or on the local machine with <code class="inline">--local</code>. If no job file is given, defaults to <code class="inline">jobs.yaml</code> in the current directory.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run [job-file] [flags]</code></pre>
+    </div>
+
+    <p>Example:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -s servers.yaml --workers 5
+<span style="color: var(--muted)">TASK         SERVER   STATUS   EXIT   DURATION</span>
+uptime       web1     ok       0      85ms
+uptime       web2     ok       0      92ms
+disk usage   web1     ok       0      67ms
+disk usage   web2     ok       0      71ms
+
+<span style="color: var(--muted)">── uptime [web1] ──</span>
+ 12:34:56 up 1 day,  3 users,  load average: 0.12, 0.15, 0.10
+
+<span style="color: var(--muted)">── disk usage [web1] ──</span>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        50G   23G   25G  48% /
+
+<span style="color: var(--muted)">── uptime [web2] ──</span>
+ 12:34:56 up 5 days,  1 user,  load average: 0.08, 0.10, 0.05
+
+<span style="color: var(--muted)">── disk usage [web2] ──</span>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        50G   18G   30G   38% /
+
+Started: 2026-08-15T11:20:30-04:00
+Duration: 320ms
+</code></pre>
+    <p>Pass <code class="inline">--local</code> to run the job on the current machine without SSH.</p>
+    <p>Pass <code class="inline">--dry-run</code> to print the planned commands, scripts, and uploads without executing anything.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml --dry-run
+<span style="color: var(--muted)">TASK         SERVER   STATUS   PLAN</span>
+say hello    web1     plan     command: echo "hello world"
+show shell  web1     plan     shell: 42 bytes
+    </div>
+    <p><code class="inline">ops plan</code> is an alias for <code class="inline">ops run --dry-run</code> and does not require <code class="inline">servers</code>.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops plan jobs.yaml
+<span style="color: var(--muted)">TASK         SERVER   STATUS   PLAN</span>
+say hello    -        plan     command: echo "hello world"
+    </div>
+    <h3 id="update">ops update</h3>
+    <p>Check for and install the latest release from GitHub.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops update
+Current version: &lt;version&gt;
+Latest version:  &lt;version&gt;
+Downloading ops-linux-amd64...
+Installing...
+Updated to &lt;version&gt;.</code></pre>
+    </div>
+    <p>Check without installing:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops update --check
+Current version: &lt;version&gt;
+Latest version:  &lt;version&gt;
+Update available. Run without --check to install.</code></pre>
+    </div>
+    <p>Install even if the current version already matches the latest:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops update --force
+Current version: &lt;version&gt;
+Latest version:  &lt;version&gt;
+Downloading ops-linux-amd64...
+Installing...
+Updated to &lt;version&gt;.</code></pre>
+    </div>
+    <p>Update from a different GitHub repo:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops update --repo yourorg/ops</code></pre>
+    </div>
+
+    <h3 id="version">ops version</h3>
+    <p>Print the current version.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops version
+&lt;version&gt;</code></pre>
+    </div>
+    <h3 id="new">ops new</h3>
+    <p>Create a starter <code>jobs.yaml</code> and <code>servers.yaml</code> in the given directory. Defaults to the current directory. Existing files are not overwritten.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops new my-project
+created sample files:
+  my-project/jobs.yaml
+  my-project/servers.yaml</code></pre>
+    </div>
+
+    <h3 id="validate">ops validate</h3>
+    <p>Validate a job file without executing it. Checks YAML structure, required fields, and that each task has a command, script, or shell. Defaults to <code class="inline">jobs.yaml</code> in the current directory.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops validate [job-file]</code></pre>
+    </div>
+
+    <p>Example:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops validate jobs.yaml
+valid</code></pre>
+    </div>
+    <h3 id="list">ops list</h3>
+    <p>List YAML job files in the current directory, showing each file and description. Non-job YAML files are skipped.</p>
+    <p>Alias: <code class="inline">ls</code></p>
+    <p>Use <code class="inline">-r</code> or <code class="inline">--recursive</code> to search subdirectories. Hidden directories, <code class="inline">node_modules</code>, and <code class="inline">vendor</code> are skipped.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops ls -r
+<span style="color: var(--muted)">PATH                DESCRIPTION</span>
+examples/jobs.yaml  install and restart nginx
+    </div>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops list
+<span style="color: var(--muted)">FILE        DESCRIPTION</span>
+jobs.yaml   install and restart nginx
+    </div>
+
+    <h3 id="flags">Flags</h3>
+    <p>Flags for <code class="inline">ops run</code>:</p>
+    <table>
+      <thead>
+        <tr><td><code>--check</code></td><td></td><td><code>false</code></td><td>Check for updates without installing (update command only).</td></tr>
+        <tr><td><code>--repo</code></td><td></td><td></td><td>GitHub repo to update from (update command only).</td></tr>
+      <tbody>
+        <tr><td><code>--servers</code></td><td><code>-s</code></td><td></td><td>Path to a servers YAML file.</td></tr>
+        <tr><td><code>--server-list</code></td><td><code>-S</code></td><td></td><td>Comma-separated inline server aliases.</td></tr>
+        <tr><td><code>--ssh-config</code></td><td></td><td><code>~/.ssh/config</code></td><td>Path to SSH config file.</td></tr>
+        <tr><td><code>--env</code></td><td><code>-e</code></td><td></td><td>Environment variables (key=value, repeatable).</td></tr>
+        <tr><td><code>--var</code></td><td></td><td></td><td>Job variables (key=value, repeatable).</td></tr>
+        <tr><td><code>--workers</code></td><td><code>-w</code></td><td><code>10</code></td><td>Concurrency: number of parallel SSH connections.</td></tr>
+        <tr><td><code>--timeout</code></td><td></td><td></td><td>Per-task timeout (e.g. <code>30s</code>, <code>5m</code>).</td></tr>
+        <tr><td><code>--quiet</code></td><td><code>-q</code></td><td><code>false</code></td><td>Suppress command output; show summary table only.</td></tr>
+        <tr><td><code>--output</code></td><td><code>-o</code></td><td><code>text</code></td><td>Output format: <code>text</code> or <code>json</code>. Text mode shows stdout/stderr per task.</td></tr>
+        <tr><td><code>--log-dir</code></td><td></td><td></td><td>Write per-server stdout/stderr to files in this directory.</td></tr>
+        <tr><td><code>--stream</code></td><td></td><td><code>false</code></td><td>Stream command output live as each task runs. Only compatible with text output.</td></tr>
+        <tr><td><code>--keep</code></td><td></td><td><code>false</code></td><td>Do not remove uploaded scripts after execution.</td></tr>
+        <tr><td><code>--fail-fast</code></td><td></td><td><code>false</code></td><td>Stop all tasks on first failure.</td></tr>
+        <tr><td><code>--insecure-ignore-hostkey</code></td><td></td><td><code>false</code></td><td>Skip host key verification. Insecure — testing only.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="examples">Examples</h3>
+
+    <h4>Run with inline servers</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -S web1,web2,db1</code></pre>
+    </div>
+
+    <h4>Run with JSON output for CI</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -o json | jq '.tasks[] | select(.ExitCode != 0)'</code></pre>
+    </div>
+
+    <h4>Run with variables and env</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml \
+    --var version=1.25 \
+    --var domain=prod.example.com \
+    -e DEBIAN_FRONTEND=noninteractive</code></pre>
+    </div>
+
+    <h4>Run with fail-fast and custom workers</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml --fail-fast --workers 3</code></pre>
+    </div>
+
+    <h4>Run with a custom SSH config</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml --ssh-config ~/.ssh/config.staging</code></pre>
+    </div>
+
+    <h4>Keep uploaded scripts for debugging</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml --keep --insecure-ignore-hostkey</code></pre>
+    </div>
+    <h4>Run quietly (summary only)</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -q
+<span style="color: var(--muted)">TASK         SERVER   STATUS   EXIT   DURATION</span>
+uptime       web1     ok       0      85ms
+uptime       web2     ok       0      92ms
+disk usage   web1     ok       0      67ms
+disk usage   web2     ok       0      71ms
+
+Started: 2026-08-15T11:20:30-04:00
+Duration: 320ms
+</code></pre>
+    </div>
+
+    <div class="callout">
+      <strong>Exit code:</strong> ops exits with the highest remote exit code, or <code class="inline">1</code> if any connection failed. This makes it CI-friendly — a non-zero exit signals failure.
+    </div>
+
+    <div class="cta">
+      <a href="/ops/">Back to Home →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><a href="https://github.com/blindly/ops">github.com/blindly/ops</a> · MIT License · Built with Go</p>
+</footer>
+
+</body>
+</html>

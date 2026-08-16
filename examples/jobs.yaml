@@ -1,0 +1,10 @@
+---
+description: example job
+servers: ./servers.yaml
+defaults:
+  interpreter: bash
+vars:
+  name: world
+tasks:
+  - name: say hello
+    command: echo "hello {{ .name }}"

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servers — ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ops/assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='monospace' fill='%232dd4bf'>$</text></svg>">
+</head>
+<body>
+
+<nav class="top">
+  <a class="brand" href="/ops/">ops</a>
+  <div class="links">
+    <a href="/ops/getting-started.html">Getting Started</a>
+    <a href="/ops/jobs.html">Jobs</a>
+    <a href="/ops/servers.html">Servers</a>
+    <a href="/ops/cli-reference.html">CLI</a>
+    <a href="/ops/library.html">Library</a>
+    <a href="https://github.com/blindly/ops">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>Servers</h3>
+    <ul>
+      <li><a href="#servers-yaml" class="active">servers.yaml</a></li>
+      <li><a href="#ssh-config">SSH Config</a></li>
+      <li><a href="#resolution">Resolution</a></li>
+      <li><a href="#inline">Inline Servers</a></li>
+    </ul>
+    <h3>Reference</h3>
+    <ul>
+      <li><a href="/ops/jobs.html">Job Files</a></li>
+      <li><a href="/ops/cli-reference.html">CLI Reference</a></li>
+    </ul>
+  </aside>
+
+  <div class="content">
+    <h2>Servers</h2>
+
+    <p>ops does not maintain its own inventory of connection details. Instead, it reads server aliases from a simple YAML file and resolves them against your <code class="inline">~/.ssh/config</code>. If <code class="inline">ssh web1</code> works, ops can reach <code class="inline">web1</code>.</p>
+
+    <h3 id="servers-yaml">servers.yaml</h3>
+    <p>A servers file is just a list of <code class="inline">Host</code> aliases that exist in your SSH config:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>servers.yaml</div>
+<pre><code>servers:
+  - web1
+  - web2
+  - db1
+  - win1</code></pre>
+    </div>
+
+    <p>Reference it from a job:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>jobs.yaml</div>
+<pre><code>---
+description: my job
+servers: ./servers.yaml
+tasks:
+  - name: ping
+    command: echo pong</code></pre>
+    </div>
+
+    <h3 id="ssh-config">SSH Config</h3>
+    <p>Each alias in <code class="inline">servers.yaml</code> must match a <code class="inline">Host</code> block in your SSH config, with one exception: the reserved alias <code class="inline">local</code> runs on the current machine without SSH. ops reads <code class="inline">HostName</code>, <code class="inline">User</code>, <code class="inline">Port</code>, and <code class="inline">IdentityFile</code> from the matching block:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>~/.ssh/config</div>
+<pre><code>Host web1
+    HostName 10.0.0.5
+    User admin
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
+
+Host web2
+    HostName 10.0.0.6
+    User admin
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
+
+Host db1
+    HostName db.internal
+    User ubuntu
+    Port 2222
+
+Host win1
+    HostName 10.0.0.7
+    User Administrator
+    IdentityFile ~/.ssh/win-key</code></pre>
+    </div>
+
+    <h3 id="resolution">Resolution Rules</h3>
+    <ul>
+      <li>Default config file is <code class="inline">~/.ssh/config</code></li>
+      <li>Override with <code class="inline">--ssh-config &lt;path&gt;</code> or <code class="inline">OPS_SSH_CONFIG</code> env var</li>
+      <li><code class="inline">HostName</code> defaults to the alias itself if not specified</li>
+      <li><code class="inline">User</code> defaults to the current OS user if not specified</li>
+      <li><code class="inline">Port</code> defaults to <code class="inline">22</code> if not specified</li>
+      <li><code class="inline">IdentityFile</code> is passed to the SSH client for key-based auth</li>
+      <li>Wildcard <code class="inline">Host</code> patterns are not expanded — aliases must be explicit</li>
+      <li>Port must be a valid integer in the range 1–65535</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Auth methods:</strong> ops supports SSH key files, ssh-agent, and password (via <code class="inline">SSH_PASSWORD</code> env var). Host key verification uses <code class="inline">~/.ssh/known_hosts</code> by default. Use <code class="inline">--insecure-ignore-hostkey</code> only for testing.
+    </div>
+
+    <h3 id="inline">Inline Servers</h3>
+    <p>Skip the servers file and specify aliases directly in the job:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>jobs.yaml</div>
+<pre><code>---
+description: quick check
+servers: [web1, db1]
+tasks:
+  - name: uptime
+    command: uptime</code></pre>
+    </div>
+
+    <p>Or override at the CLI:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -S web1,db1,win1</code></pre>
+    </div>
+
+    <p>Or specify a different servers file:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -s production-servers.yaml</code></pre>
+    </div>
+
+    <div class="callout">
+      <strong>Priority:</strong> CLI <code class="inline">-S</code> overrides <code class="inline">-s</code> overrides the job file's <code class="inline">servers</code> field.
+    </div>
+
+    <div class="cta">
+      <a href="/ops/cli-reference.html">CLI Reference →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><a href="https://github.com/blindly/ops">github.com/blindly/ops</a> · MIT License · Built with Go</p>
+</footer>
+
+</body>
+</html>
