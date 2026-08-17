@@ -220,6 +220,10 @@ aside.sidebar li a.active {
 
 .hero .install .prompt { color: var(--accent); }
 .hero .install .cmd { color: var(--text); }
+.hero .install a {
+  color: var(--text-bright);
+  text-decoration: none;
+}
 
 /* ─── Sections ─── */
 section {
