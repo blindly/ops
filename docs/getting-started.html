@@ -57,7 +57,14 @@
 
     <h3 id="install">Installation</h3>
 
-    <p>From source:</p>
+    <p>From a release:</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
+<pre><code><span style="color: var(--accent)">$</span> curl -L -o ops https://github.com/blindly/ops/releases/latest/download/ops-linux-amd64 &amp;&amp; chmod +x ops</code></pre>
+    </div>
+    <p>Other platform binaries are on the <a href="https://github.com/blindly/ops/releases">releases page</a>.</p>
+
+    <p>Or install with Go:</p>
     <div class="code-block">
       <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
 <pre><code><span style="color: var(--accent)">$</span> go install github.com/blindly/ops/cmd/ops@latest</code></pre>
@@ -71,7 +78,6 @@
 <span style="color: var(--accent)">$</span> make install</code></pre>
     </div>
 
-    <p>Or download a pre-built binary from the <a href="https://github.com/blindly/ops/releases">releases page</a>.</p>
 
     <p>Verify the install:</p>
     <div class="code-block">
