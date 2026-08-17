@@ -26,9 +26,9 @@
 </nav>
 
 <div class="hero">
-  <span class="badge">single binary · zero agent</span>
+  <span class="badge">single binary · zero agent · operator's shell</span>
   <h1>ops<span class="cursor"></span></h1>
-  <p class="tagline">Run shell jobs on remote servers via SSH. Define tasks in YAML, resolve servers from your <code class="inline">~/.ssh/config</code>, execute in parallel.</p>
+  <p class="tagline">The operator's shell for remote tasks. One binary. No agents.</p>
   <div class="install">
     <span class="prompt">$</span>
     <span class="cmd">go install github.com/blindly/ops/cmd/ops@latest</span>
@@ -69,6 +69,33 @@
         <div class="icon">{{ }}</div>
         <h3>Templating</h3>
         <p>Use <code class="inline">{{ .var }}</code> in commands and shell blocks. Variables defined at the job level.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why not Ansible or Puppet?</h2>
+    <p><code class="inline">ops</code> is not a config manager. It is a thin task runner for the servers you already have.</p>
+    <div class="features">
+      <div class="feature">
+        <div class="icon">✓</div>
+        <h3>No agent, no Python</h3>
+        <p>Targets only need an SSH daemon and a shell. No runtime dependency to install or maintain.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">✓</div>
+        <h3>No separate inventory</h3>
+        <p>Server aliases resolve directly from your <code class="inline">~/.ssh/config</code>.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">✓</div>
+        <h3>No DSL or state</h3>
+        <p>YAML job files describe one-time execution, not desired system configuration.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">✓</div>
+        <h3>One static binary</h3>
+        <p>Cross-compiled, no install script, no package manager.</p>
       </div>
     </div>
   </section>
