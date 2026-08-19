@@ -34,7 +34,7 @@
       <li><a href="#local-remote">Same script, local &amp; remote</a></li>
       <li><a href="#windows">Linux + Windows in one job</a></li>
       <li><a href="#rolling">Rolling restart with batches</a></li>
-    </ul>
+      <li><a href="#idempotent">Safe to run twice</a></li>
     <h3>Reference</h3>
     <ul>
       <li><a href="/ops/jobs.html">Job Files</a></li>
@@ -225,6 +225,44 @@ tasks:
       <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
 <pre><code><span style="color: var(--accent)">$</span> ops run jobs.yaml -S web1,web2 &amp;&amp; ops run jobs.yaml -S web3,web4
 <span style="color: var(--accent)">$</span> ops plan jobs.yaml -S web1,web2     <span style="color: var(--muted)"># dry-run the batch first</span></code></pre>
+    </div>
+
+
+    <h3 id="idempotent">Safe to run twice</h3>
+    <p><code class="inline">ops</code> does not track desired state — and that is the point. Idempotency is a property of the shell you write, expressed with the guards you already know: <code>test -f</code>, <code>grep -q</code>, <code>test -s</code>. These are the same checks a Makefile uses. They read top-to-bottom, they fail loudly when wrong, and they survive a second run because the guard short-circuits the work.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>jobs.yaml</div>
+<pre><code>---
+description: install once, configure once
+servers: [web1, web2]
+defaults:
+  interpreter: bash
+vars:
+  domain: example.com
+tasks:
+  - name: install nginx if missing
+    command: command -v nginx &gt;/dev/null || apt-get install -y nginx
+
+  - name: write config if absent
+    command: test -f /etc/nginx/conf.d/app.conf || cp /tmp/app.conf /etc/nginx/conf.d/app.conf
+
+  - name: set domain only when it differs
+    shell: |
+      grep -q "{{ .domain }}" /etc/nginx/conf.d/app.conf &amp;&amp; exit 0
+      sed -i "s|server_name .*|server_name {{ .domain }};|" /etc/nginx/conf.d/app.conf
+      systemctl reload nginx
+
+  - name: backup only if today's dump is missing
+    shell: |
+      dest="/backups/$(date +%Y%m%d)/app.sql"
+      test -s "$dest" &amp;&amp; exit 0
+      mkdir -p "$(dirname "$dest")"
+      pg_dump app &gt; "$dest"</code></pre>
+    </div>
+    <p>The pattern is the same in every case: check the thing that proves the work is already done, skip if it does, do the work if it doesn't. No module, no state store, no <code>changed</code> vs <code>ok</code> — just a guard and a command, which is exactly what a declarative module compiles down to internally.</p>
+
+    <div class="callout">
+      <strong>Why not a <code>creates:</code> field?</strong> A Makefile-style skip-if-path-exists guard would cover the easy cases, but it would only ever be a partial answer, and the moment the runner has one piece of state it is expected to grow the rest. Keeping idempotency in shell means the guard is visible, editable, and works the same way locally and remotely — which is the whole bet.
     </div>
 
     <div class="cta">
