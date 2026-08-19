@@ -2,6 +2,18 @@
 
 Run shell jobs on remote servers via SSH.
 
+`ops` is a task runner, not a configuration manager. You write a YAML file
+listing commands, shell blocks, and local scripts; `ops` fans them out over
+SSH to your servers in parallel and reports back. There is no agent to
+install on targets, no Python runtime to ship, no inventory to maintain
+beyond your existing `~/.ssh/config`, and no module ecosystem to learn.
+
+The tradeoff is explicit: `ops` does not give you idempotent declarative
+state. `apt: name=nginx state=present` is safe to run a thousand times;
+`apt-get install -y nginx` is not. If you want desired-state configuration
+management, use Ansible. If you want to run the same real shell scripts
+locally and on remotes with a single static binary, use `ops`.
+
 ## Install
 
 ```bash
