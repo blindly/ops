@@ -106,7 +106,7 @@ tasks:
       <tbody>
         <tr>
           <td><code>command</code></td>
-          <td>A single command string. Executed via the interpreter's <code>-c</code> flag.</td>
+          <td>A single command string. Executed via the interpreter's <code>-c</code> flag (works with shells and Python; use <code>script</code> or <code>shell</code> for interpreters that don't accept <code>-c</code>, like node or perl).</td>
           <td><code>command: apt-get install -y nginx</code></td>
         </tr>
         <tr>

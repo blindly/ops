@@ -17,7 +17,7 @@ const defaultRepo = "blindly/ops"
 
 var rootCmd = &cobra.Command{
 	Use:   "ops",
-	Short: "Run shell jobs on remote servers",
+	Short: "Run jobs on remote servers",
 }
 
 func Execute() error {

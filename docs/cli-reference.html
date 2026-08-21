@@ -87,14 +87,14 @@ Duration: 320ms
 <span style="color: var(--muted)">TASK         SERVER   STATUS   PLAN</span>
 say hello    web1     plan     command: echo "hello world"
 show shell  web1     plan     shell: 42 bytes
-    </div>
+</code></pre>
     <p><code class="inline">ops plan</code> is an alias for <code class="inline">ops run --dry-run</code> and does not require <code class="inline">servers</code>.</p>
     <div class="code-block">
       <div class="header"><div class="dots"><span></span><span></span><span></span></div>terminal</div>
 <pre><code><span style="color: var(--accent)">$</span> ops plan jobs.yaml
 <span style="color: var(--muted)">TASK         SERVER   STATUS   PLAN</span>
 say hello    -        plan     command: echo "hello world"
-    </div>
+</code></pre>
     <h3 id="update">ops update</h3>
     <p>Check for and install the latest release from GitHub.</p>
     <div class="code-block">
@@ -181,8 +181,8 @@ jobs.yaml   install and restart nginx
     <p>Flags for <code class="inline">ops run</code>:</p>
     <table>
       <thead>
-        <tr><td><code>--check</code></td><td></td><td><code>false</code></td><td>Check for updates without installing (update command only).</td></tr>
-        <tr><td><code>--repo</code></td><td></td><td></td><td>GitHub repo to update from (update command only).</td></tr>
+        <tr><th>Flag</th><th>Short</th><th>Default</th><th>Description</th></tr>
+      </thead>
       <tbody>
         <tr><td><code>--servers</code></td><td><code>-s</code></td><td></td><td>Path to a servers YAML file.</td></tr>
         <tr><td><code>--server-list</code></td><td><code>-S</code></td><td></td><td>Comma-separated inline server aliases.</td></tr>
@@ -190,14 +190,14 @@ jobs.yaml   install and restart nginx
         <tr><td><code>--env</code></td><td><code>-e</code></td><td></td><td>Environment variables (key=value, repeatable).</td></tr>
         <tr><td><code>--var</code></td><td></td><td></td><td>Job variables (key=value, repeatable).</td></tr>
         <tr><td><code>--workers</code></td><td><code>-w</code></td><td><code>10</code></td><td>Concurrency: number of parallel SSH connections.</td></tr>
-        <tr><td><code>--timeout</code></td><td></td><td></td><td>Per-task timeout (e.g. <code>30s</code>, <code>5m</code>).</td></tr>
         <tr><td><code>--quiet</code></td><td><code>-q</code></td><td><code>false</code></td><td>Suppress command output; show summary table only.</td></tr>
         <tr><td><code>--output</code></td><td><code>-o</code></td><td><code>text</code></td><td>Output format: <code>text</code> or <code>json</code>. Text mode shows stdout/stderr per task.</td></tr>
-        <tr><td><code>--log-dir</code></td><td></td><td></td><td>Write per-server stdout/stderr to files in this directory.</td></tr>
         <tr><td><code>--stream</code></td><td></td><td><code>false</code></td><td>Stream command output live as each task runs. Only compatible with text output.</td></tr>
         <tr><td><code>--keep</code></td><td></td><td><code>false</code></td><td>Do not remove uploaded scripts after execution.</td></tr>
         <tr><td><code>--fail-fast</code></td><td></td><td><code>false</code></td><td>Stop all tasks on first failure.</td></tr>
         <tr><td><code>--insecure-ignore-hostkey</code></td><td></td><td><code>false</code></td><td>Skip host key verification. Insecure — testing only.</td></tr>
+        <tr><td><code>--local</code></td><td></td><td><code>false</code></td><td>Run tasks on the local machine without SSH.</td></tr>
+        <tr><td><code>--dry-run</code></td><td></td><td><code>false</code></td><td>Print planned commands, scripts, and uploads without executing.</td></tr>
       </tbody>
     </table>
 

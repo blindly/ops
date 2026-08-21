@@ -21,7 +21,7 @@ func TestHelpContainsUsage(t *testing.T) {
 	if !strings.Contains(got, "ops") {
 		t.Errorf("help output missing 'ops':\n%s", got)
 	}
-	if !strings.Contains(got, "Run shell jobs on remote servers") {
+	if !strings.Contains(got, "Run jobs on remote servers") {
 		t.Errorf("help output missing short description:\n%s", got)
 	}
 }
