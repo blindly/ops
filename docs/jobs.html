@@ -30,7 +30,7 @@
     <ul>
       <li><a href="#format" class="active">Format</a></li>
       <li><a href="#fields">Job Fields</a></li>
-      <li><a href="#tasks">Task Types</a></li>
+      <li><a href="#interpreters">Interpreters</a></li>
       <li><a href="#task-fields">Task Fields</a></li>
       <li><a href="#templating">Templating</a></li>
       <li><a href="#examples">Examples</a></li>
@@ -143,6 +143,40 @@ tasks:
     </div>
 
 
+    <h3 id="interpreters">Interpreters</h3>
+    <p>ops can run any interpreter installed on the target — not just shells. Set <code class="inline">interpreter</code> to any executable on <code>PATH</code>: <code>bash</code>, <code>pwsh</code>, <code>python3</code>, <code>node</code>, <code>perl</code>, <code>ruby</code>, or anything else. The name is executed literally as a binary, so use <code>pwsh</code> (not <code>powershell</code>) on Linux, where the Windows-only <code>powershell</code> alias does not exist.</p>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>jobs.yaml</div>
+<pre><code>---
+description: run a python script
+servers: [web1]
+defaults:
+  interpreter: python3
+vars:
+  app_version: "1.24"
+tasks:
+  - name: deploy
+    script: ./scripts/deploy.py
+    env:
+      APP_VERSION: "{{ .app_version }}"</code></pre>
+    </div>
+    <div class="callout">
+      <strong>command vs script vs shell:</strong> The <code>command</code> field passes the string via the interpreter's <code>-c</code> flag, which works for shells and Python (<code>bash -c</code>, <code>python3 -c</code>) but <strong>not</strong> for node, perl, or ruby (they expect <code>-e</code>). For those interpreters, use <code>script</code> or <code>shell</code> instead — both write the code to a file and run it as a positional argument (<code>node script.js</code>, <code>perl script.pl</code>), which works universally.
+    </div>
+    <p>Variables are injected as real environment variables — use whichever syntax your interpreter expects:</p>
+    <table>
+      <thead>
+        <tr><th>Interpreter</th><th>Read an env var</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>bash / sh / zsh</td><td><code>$VAR</code></td></tr>
+        <tr><td>pwsh / powershell</td><td><code>$env:VAR</code></td></tr>
+        <tr><td>python3</td><td><code>os.environ["VAR"]</code></td></tr>
+        <tr><td>node</td><td><code>process.env.VAR</code></td></tr>
+        <tr><td>perl</td><td><code>$ENV{VAR}</code></td></tr>
+        <tr><td>ruby</td><td><code>ENV["VAR"]</code></td></tr>
+      </tbody>
+    </table>
     <h3 id="task-fields">Task Fields</h3>
     <table>
       <thead>
@@ -155,7 +189,7 @@ tasks:
         <tr><td><code>script</code></td><td>string</td><td>one of</td><td>Local file path to upload and execute.</td></tr>
         <tr><td><code>upload</code></td><td>string</td><td>one of</td><td>Local file path to upload without executing.</td></tr>
         <tr><td><code>dest</code></td><td>string</td><td>with upload</td><td>Full remote file path to write the uploaded file to.</td></tr>
-        <tr><td><code>interpreter</code></td><td>string</td><td>no</td><td>Override the job default interpreter. One of <code>bash</code>, <code>sh</code>, <code>zsh</code>, <code>powershell</code>, <code>pwsh</code>.</td></tr>
+        <tr><td><code>interpreter</code></td><td>string</td><td>no</td><td>Override the job default interpreter. Any executable on <code>PATH</code>: <code>bash</code>, <code>sh</code>, <code>zsh</code>, <code>pwsh</code>, <code>python3</code>, <code>node</code>, <code>perl</code>, etc. See <a href="#interpreters">Interpreters</a>.</td></tr>
         <tr><td><code>workdir</code></td><td>string</td><td>no</td><td>Override the job default working directory. The task runs with this as its current directory.</td></tr>
         <tr><td><code>timeout</code></td><td>string</td><td>no</td><td>Per-task timeout (e.g. <code>"30s"</code>, <code>"5m"</code>).</td></tr>
         <tr><td><code>ignore_errors</code></td><td>bool</td><td>no</td><td>If true, a non-zero exit does not stop the run.</td></tr>
@@ -229,6 +263,29 @@ tasks:
     env:
       APP_VERSION: "{{ .version }}"
       RELEASE_ID: "42"</code></pre>
+
+    <h4>Python script with env injection</h4>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>jobs.yaml</div>
+<pre><code>---
+description: run a python deploy script
+servers: ./servers.yaml
+defaults:
+  interpreter: python3
+vars:
+  version: "1.24"
+tasks:
+  - name: deploy
+    script: ./scripts/deploy.py
+    env:
+      APP_VERSION: "{{ .version }}"</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="header"><div class="dots"><span></span><span></span><span></span></div>scripts/deploy.py</div>
+<pre><code>import os
+
+version = os.environ["APP_VERSION"]
+print(f"deploying version {version}")</code></pre>
     </div>
     <h3 id="advanced-examples">Advanced Examples</h3>
 
